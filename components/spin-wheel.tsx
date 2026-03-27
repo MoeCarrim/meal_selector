@@ -77,6 +77,7 @@ export default function SpinWheel({ meals, onResult }: SpinWheelProps) {
     }).start(() => {
       isSpinning.current = false;
       currentRotation.current = newRotation % 360;
+      spinAnim.setValue(currentRotation.current);
       onResult(meals[randomSegment]);
     });
   }
