@@ -58,11 +58,8 @@ export default function SpinWheel({ meals, onResult }: SpinWheelProps) {
     if (isSpinning.current) return;
     isSpinning.current = true;
 
-    // Use crypto.getRandomValues for fair randomization
-    const buf = new Uint32Array(2);
-    crypto.getRandomValues(buf);
-    const randomSegment = buf[0] % meals.length;
-    const extraRotations = 5 + (buf[1] % 6); // 5–10 full rotations
+    const randomSegment = Math.floor(Math.random() * meals.length);
+    const extraRotations = 5 + Math.floor(Math.random() * 6); // 5–10 full rotations
     // pointer is at top (0°). Segment i starts at i*segmentAngle.
     // To land on middle of randomSegment, the wheel must rotate so that
     // targetSegmentMid ends up at 0° (top). We need to rotate by -(targetSegmentMid)
@@ -78,7 +75,10 @@ export default function SpinWheel({ meals, onResult }: SpinWheelProps) {
       useNativeDriver: true,
     }).start(() => {
       isSpinning.current = false;
+      // Keep both the ref and the animated value in sync at the reduced angle so
+      // subsequent spins always animate forward (toValue is always > current value).
       currentRotation.current = newRotation % 360;
+      spinAnim.setValue(currentRotation.current);
       onResult(meals[randomSegment]);
     });
   }

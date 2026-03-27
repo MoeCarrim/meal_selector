@@ -1,5 +1,5 @@
 import SpinWheel from '@/components/spin-wheel';
-import { useMeals } from '@/hooks/use-meals';
+import { useMealsContext } from '@/contexts/meals-context';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 
 export default function SpinnerScreen() {
-  const { meals, availableMeals, loading, addMeal, removeMeal, recordSelection } = useMeals();
+  const { meals, availableMeals, loading, addMeal, removeMeal, recordSelection } = useMealsContext();
   const [newMeal, setNewMeal] = useState('');
   const [result, setResult] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);

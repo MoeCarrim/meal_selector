@@ -1,6 +1,7 @@
-import { useMeals } from '@/hooks/use-meals';
+import { useMealsContext } from '@/contexts/meals-context';
 import React from 'react';
 import {
+  ActivityIndicator,
   Alert,
   SafeAreaView,
   ScrollView,
@@ -12,7 +13,7 @@ import {
 } from 'react-native';
 
 export default function SettingsScreen() {
-  const { history, exclusionDays, updateExclusionDays, clearHistory } = useMeals();
+  const { history, exclusionDays, loading, updateExclusionDays, clearHistory } = useMealsContext();
 
   function handleClearHistory() {
     Alert.alert(
@@ -30,6 +31,14 @@ export default function SettingsScreen() {
   }
 
   const dayOptions = [1, 2, 3, 5, 7, 14, 30];
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#1A5C38" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -131,6 +140,12 @@ const GOLD = '#D4AF37';
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
+    backgroundColor: '#F5F0E8',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#F5F0E8',
   },
   header: {
