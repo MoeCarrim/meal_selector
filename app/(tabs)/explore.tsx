@@ -1,112 +1,293 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useMeals } from '@/hooks/use-meals';
+import React from 'react';
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+export default function SettingsScreen() {
+  const { history, exclusionDays, updateExclusionDays, clearHistory } = useMeals();
 
-export default function TabTwoScreen() {
+  function handleClearHistory() {
+    Alert.alert(
+      'Clear History',
+      'This will allow all previously selected meals to appear in the wheel again.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear',
+          style: 'destructive',
+          onPress: clearHistory,
+        },
+      ],
+    );
+  }
+
+  const dayOptions = [1, 2, 3, 5, 7, 14, 30];
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="light-content" backgroundColor="#1A5C38" />
+      <View style={styles.header}>
+        <Text style={styles.headerIcon}>⚙️</Text>
+        <Text style={styles.headerTitle}>Settings</Text>
+        <Text style={styles.headerSubtitle}>Iftaar Spinner</Text>
+      </View>
+
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        {/* Exclusion Days */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>🕐 Exclusion Period</Text>
+          <Text style={styles.cardDesc}>
+            Selected meals won&apos;t appear on the wheel for this many days.
+          </Text>
+          <View style={styles.daysRow}>
+            {dayOptions.map((d) => (
+              <TouchableOpacity
+                key={d}
+                style={[styles.dayChip, exclusionDays === d && styles.dayChipActive]}
+                onPress={() => updateExclusionDays(d)}
+              >
+                <Text style={[styles.dayChipText, exclusionDays === d && styles.dayChipTextActive]}>
+                  {d}d
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.currentSetting}>
+            Currently: {exclusionDays} day{exclusionDays !== 1 ? 's' : ''}
+          </Text>
+        </View>
+
+        {/* History */}
+        <View style={styles.card}>
+          <View style={styles.cardTitleRow}>
+            <Text style={styles.cardTitle}>📋 Selection History</Text>
+            <TouchableOpacity style={styles.clearBtn} onPress={handleClearHistory}>
+              <Text style={styles.clearBtnText}>Clear All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {history.length === 0 ? (
+            <Text style={styles.emptyText}>No meals selected yet. Spin the wheel!</Text>
+          ) : (
+            history.map((entry, i) => {
+              const date = new Date(entry.selectedAt);
+              const dateStr = date.toLocaleDateString('en-GB', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+              });
+              const timeStr = date.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+              });
+              return (
+                <View key={`${entry.mealId}-${entry.selectedAt}`} style={styles.historyRow}>
+                  <View style={[styles.historyIndex, { opacity: i === 0 ? 1 : 0.6 }]}>
+                    <Text style={styles.historyIndexText}>{i + 1}</Text>
+                  </View>
+                  <View style={styles.historyInfo}>
+                    <Text style={styles.historyMeal}>{entry.mealName}</Text>
+                    <Text style={styles.historyDate}>
+                      {dateStr} · {timeStr}
+                    </Text>
+                  </View>
+                  {i === 0 && (
+                    <View style={styles.latestBadge}>
+                      <Text style={styles.latestBadgeText}>Latest</Text>
+                    </View>
+                  )}
+                </View>
+              );
+            })
+          )}
+        </View>
+
+        {/* About */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>🌙 About Iftaar Spinner</Text>
+          <Text style={styles.aboutText}>
+            Iftaar Spinner helps Muslim families decide what to have for iftaar – the meal that
+            breaks the fast during Ramadan and other fasting days.{'\n\n'}
+            Add your favourite iftaar meals to the list, spin the wheel, and let the app choose
+            tonight&apos;s meal!
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
+const GREEN = '#1A5C38';
+const GOLD = '#D4AF37';
+
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  safe: {
+    flex: 1,
+    backgroundColor: '#F5F0E8',
   },
-  titleContainer: {
+  header: {
+    backgroundColor: GREEN,
+    alignItems: 'center',
+    paddingTop: 20,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  headerIcon: {
+    fontSize: 36,
+    marginBottom: 4,
+  },
+  headerTitle: {
+    color: GOLD,
+    fontSize: 26,
+    fontWeight: 'bold',
+  },
+  headerSubtitle: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    marginTop: 2,
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+    gap: 16,
+    paddingBottom: 40,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+  },
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: GREEN,
+    marginBottom: 6,
+  },
+  cardTitleRow: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  cardDesc: {
+    color: '#666',
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 14,
+  },
+  daysRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
+    marginBottom: 10,
+  },
+  dayChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#ccc',
+    backgroundColor: '#f5f5f5',
+  },
+  dayChipActive: {
+    backgroundColor: GREEN,
+    borderColor: GREEN,
+  },
+  dayChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#555',
+  },
+  dayChipTextActive: {
+    color: '#fff',
+  },
+  currentSetting: {
+    color: '#888',
+    fontSize: 13,
+  },
+  clearBtn: {
+    backgroundColor: '#FFF0F0',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E63946',
+  },
+  clearBtnText: {
+    color: '#E63946',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  emptyText: {
+    color: '#aaa',
+    fontSize: 14,
+    textAlign: 'center',
+    paddingVertical: 12,
+  },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    gap: 10,
+  },
+  historyIndex: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: GREEN,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  historyIndexText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  historyInfo: {
+    flex: 1,
+  },
+  historyMeal: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#222',
+  },
+  historyDate: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 1,
+  },
+  latestBadge: {
+    backgroundColor: GOLD,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  latestBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  aboutText: {
+    color: '#555',
+    fontSize: 14,
+    lineHeight: 20,
   },
 });
